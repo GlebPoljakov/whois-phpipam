@@ -24,7 +24,14 @@ include_once('apiClient.php');
 	$subnet_unset_details[]		= array('vrfId', 'masterSubnetId', 'allowRequests', 'vlanId', 'showName', 'permissions', 'pingSubnet', 'isFolder');
 // }}}
 
-// {{{ read REQUEST params
+// {{{ Get params
+	//Get params from cmd if we running in shell
+	if (php_sapi_name()=='cli')
+		foreach ($argv as $arg) {
+			$e=explode("=",$arg);
+			$_REQUEST[$e[0]] = (count($e)==2) ? $e[1] : 0;
+		}
+
 	$ip_req['ip'] = $_REQUEST['ip'];
 // }}}
 
@@ -50,45 +57,8 @@ try {
 	$subnet_details = $apicaller->sendRequest($subnet_req);
 	// }}}
 
-//TODO:
-	// {{{ Get State
-	// }}}
-
-//TODO:
-	// {{{ Get Vrf information:
-	if ($subnet_details['vrfId']!=0) {
-
-	}
-	// }}}
-
-//TODO:
-	// {{{ Get SwitchById
-	// }}}
-
-//TODO:
-	// {{{ Get Vlan information:
-	if ($subnet_details['vlanId']!=0) {
-
-	}
-	// }}}
-
-	// {{{ Get MasterSubnet:
-		$subnet_req['id'] = $subnet_details['masterSubnetId'];
-		$masterSubnet_details = $apicaller->sendRequest($subnet_req);
-
-		if (!$masterSubnet_details['isFolder']) {
-			$subnet_details['masterSubnet'] = $masterSubnet_details['subnet'];
-		}
-		unset ($masterSubnet_detail);
-	// }}}
-
 	print "<pre>IpAddr:";
 	print_r ($ip_details);
-
-	print "<pre>Subnet:";
-	print_r($subnet_details);
-
-	print_r($masterSubnet_details);
 
 }
 catch( Exception $e ) {
