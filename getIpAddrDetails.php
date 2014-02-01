@@ -4,72 +4,210 @@
  * 
  */
 
+# functions
+include_once('functions/functions.php');
+
 # config
 include_once('apiConfig.php');
 
 # API caller class
 include_once('apiClient.php');
 
-// {{{ Variables:
-	$ip_req['controller'] 		= "Addresses";
-	$ip_req['action']		= "read";
-	$ip_req['format']		= "ip";
-
-	$ip_unset_details[]		= array('id', 'subnetId', 'excludePing');
-
-	$subnet_req['controller']	= "Subnets";
-	$subnet_req['action']		= "read";
-	$subnet_req['format']		= "ip";
-
-	$subnet_unset_details[]		= array('vrfId', 'masterSubnetId', 'allowRequests', 'vlanId', 'showName', 'permissions', 'pingSubnet', 'isFolder');
-// }}}
-
-// {{{ Get params
-	//Get params from cmd if we running in shell
-	if (php_sapi_name()=='cli')
-		foreach ($argv as $arg) {
-			$e=explode("=",$arg);
-			$_REQUEST[$e[0]] = (count($e)==2) ? $e[1] : 0;
-		}
-
-	$ip_req['ip'] = $_REQUEST['ip'];
-// }}}
-
-	print "<pre>Request:<br>";
-	print_r($ip_req);
-
 
 # wrap in try to catch exceptions
 try {
-	// initialize API caller
-	$apicaller = new ApiCaller($app['id'], $app['enc'], $url);
 
-	// Get Ip-Address Details:
-	$ip_details = $apicaller->sendRequest($ip_req);
-	// {{{ Remove unnesessary fields
-	//foreach ($ip_unset_details as $key) {
-	//    unset $ip_details->$key;
-	//}
+	// {{{ Get params
+	//
+	// Params:
+	//	-h/--help
+	//	-q %query%
+	//		%ipv4/ipv6%	- Get ip details
+	//		%CIDR-subnet%	- Get subnet details
+	//		%RD:RD%		- Get vrfId details
+	//TODO:		AS%%		- Get ASN details
+	//		VLAN%vlanId%	- Get vlanId details
+	//TODO:		MAC-addr	- Get details by MAC
+	//
+	$opts = getopts(array(
+		'help' => array('switch' => array('h','help'),'type' => GETOPT_SWITCH),
+		'query' => array('switch' => array('q','query'),'type' => GETOPT_VAL),
+	),$argv);
+
+	DbgPrn( $opts, "Opts:\n");
+
+	if (
+		$opts['help'] ||
+		$opts['query']=='')
+	{
+		usage ();
+		exit (0);
+	}
 	// }}}
 
-	// {{{ Get Subnet Details:
-	$subnet_req['id'] = $ip_details['subnetId'];
-	$subnet_details = $apicaller->sendRequest($subnet_req);
+	// {{{ Parse %query%
+		//is ip-address?
+			if (filter_var($opts['query'], FILTER_VALIDATE_IP)) {
+				showIpDetails($opts['query']);
+				exit (0);
+			}
+		// {{{ is subnet?
+			$q_subnet = explode ('/',$opts['query']);
+			if (sizeof($q_subnet)==2){
+			DbgPrn ($q_subnet, 'Q_Subnet:');
+				if (
+					filter_var($q_subnet[0], FILTER_VALIDATE_IP) &&
+					filter_var($q_subnet[1], FILTER_VALIDATE_INT)
+				) {
+					showSubnetDetails($opts['query']);
+					exit (0);
+				}
+			}
+		// }}}
+		// {{{ is VRF?
+			$q_vrf = explode (':',$opts['query']);
+			DbgPrn ($q_vrf, 'Q_VRF:');
+			if (sizeof($q_vrf)==2){
+				if (
+					filter_var($q_vrf[0], FILTER_VALIDATE_INT) &&
+					filter_var($q_vrf[1], FILTER_VALIDATE_INT)
+				) {
+					showVrfDetails($opts['query']);
+					exit (0);
+				}
+			}
+		// }}}
+		//is VLAN?
+			if (filter_var($opts['query'], FILTER_VALIDATE_INT,1)) {
+				showVlanDetails($opts['query']);
+				exit (0);
+			}
 	// }}}
-
-	print "<pre>IpAddr:";
-	print_r ($ip_details);
-
 }
-catch( Exception $e ) {
+catch ( Exception $e ) {
 	//catch any exceptions and report the problem
 /*	print "Error: ".$e->getMessage();
 	print "In file: ".$e->getFile();
 	print ""*/
-	print "<pre>";
 	print_r($e);
 }
 
+// {{{ Function to get ip details and print it to STDOUT
+//
+//
+function showIpDetails ($ip){
+
+	global $app;
+	global $url;
+
+	$req['controller']	= "Addresses";
+	$req['action']		= "read";
+	$req['format']		= "ip";
+	$req['ip']		= $ip;
+
+	DbgPrn( $req, "Request:\n");
+
+	// initialize API caller
+	$apicaller = new ApiCaller($app['id'], $app['enc'], $url);
+
+	try {
+		// Get Ip-Address Details:
+		$details = $apicaller->sendRequest($req);
+
+		include ('templates/ip.php');
+		print_r ($ip_info_template);
+	}
+	catch (Exception $e) {
+		$error_msg = $e->getMessage();
+		if ($error_msg == 'Address not existed') {
+				print "Address $ip not existed in db.\n";
+				// try to find subnet
+				showSubnetDetails ($ip.'/32');
+		}
+		else
+			print_r($e);
+	}
+}
+// }}}
+
+
+// {{{ Function to get Subnet details and print it to STDOUT
+//
+//
+function showSubnetDetails ($subnet){
+
+	global $app;
+	global $url;
+
+	$req['controller']	= "Subnets";
+	$req['action']		= "read";
+	$req['format']		= "ip";
+	$req['subnet']		= $subnet;
+
+	DbgPrn( $req, "Request:\n");
+
+	// initialize API caller
+	$apicaller = new ApiCaller($app['id'], $app['enc'], $url);
+
+	// Get Ip-Address Details:
+	$details = $apicaller->sendRequest($req);
+
+	include ('templates/subnet.php');
+	print_r ($subnet_info_template);
+}
+// }}}
+
+// {{{ Function to get VRF details and print it to STDOUT
+//
+//
+function showVRFDetails ($vrfRd){
+
+	global $app;
+	global $url;
+
+	$req['controller']	= "Vrfs";
+	$req['action']		= "read";
+	$req['format']		= "ip";
+	$req['vrfRd']		= $vrfRd;
+
+	DbgPrn( $req, "Request:\n");
+
+	// initialize API caller
+	$apicaller = new ApiCaller($app['id'], $app['enc'], $url);
+
+	// Get Details:
+	$details = $apicaller->sendRequest($req);
+
+	include ('templates/vrf.php');
+	print_r ($vrf_info_template);
+}
+// }}}
+
+// {{{ Function to get Vlan details and print it to STDOUT
+//
+//
+function showVlanDetails ($vlanNumber){
+
+	global $app;
+	global $url;
+
+	$req['controller']	= "Vlans";
+	$req['action']		= "read";
+	$req['format']		= "ip";
+	$req['vlanNumber']	= $vlanNumber;
+
+	DbgPrn( $req, "Request:\n");
+
+	// initialize API caller
+	$apicaller = new ApiCaller($app['id'], $app['enc'], $url);
+
+	// Get Details:
+	$details = $apicaller->sendRequest($req);
+
+	include ('templates/vlan.php');
+	print_r ($vlan_info_template);
+}
+// }}}
 
 
 ?>
