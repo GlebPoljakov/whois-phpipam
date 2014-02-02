@@ -1,7 +1,8 @@
 <?php
 
 // {{{ Include standalones:
-	include_once('getopts.php');
+	require_once('getopts.php');
+	require_once 'PEAR/Console/Table.php';
 // }}}
 
 
