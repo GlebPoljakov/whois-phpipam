@@ -31,8 +31,14 @@ try {
 	//TODO:		MAC-addr	- Get details by MAC
 	//
 	$opts = getopts(array(
-		'help' => array('switch' => array('h','help'),'type' => GETOPT_SWITCH),
-		'query' => array('switch' => array('q','query'),'type' => GETOPT_VAL),
+		'help' => array(
+				'switch' => array('h','help'),
+				'type' => GETOPT_SWITCH
+				),
+		'query' => array(
+				'switch' => array('q','query'),
+				'type' => GETOPT_VAL
+				),
 	),$argv);
 
 	DbgPrn( $opts, "Opts:\n");
@@ -101,9 +107,9 @@ function showIpDetails ($ip){
 	global $app;
 	global $url;
 
-	$req['controller']	= "Addresses";
-	$req['action']		= "read";
-	$req['format']		= "ip";
+	$req['controller']	= 'Addresses';
+	$req['action']		= 'read';
+	$req['format']		= 'ip';
 	$req['ip']		= $ip;
 
 	DbgPrn( $req, "Request:\n");
@@ -166,12 +172,10 @@ function showVRFDetails ($vrfRd){
 	global $app;
 	global $url;
 
-	$req['controller']	= "Vrfs";
-	$req['action']		= "read";
-	$req['format']		= "ip";
-	$req['vrfRd']		= $vrfRd;
-
-	DbgPrn( $req, "Request:\n");
+	$req['controller']	= 'Vrfs';
+	$req['action']		= 'read';
+	$req['format']		= 'ip';
+	$req['rd']		= $vrfRd;
 
 	// initialize API caller
 	$apicaller = new ApiCaller($app['id'], $app['enc'], $url);
@@ -181,6 +185,13 @@ function showVRFDetails ($vrfRd){
 
 	include ('templates/vrf.php');
 	print_r ($vrf_info_template);
+
+/* TODO:
+ * if vrf contain less than 25 subnets, then show list of subnets (CIDRs only).
+ *
+ *
+ */
+
 }
 // }}}
 

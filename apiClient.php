@@ -47,20 +47,20 @@ class ApiCaller
 	curl_close($ch);
 
       //json_decode the result
-      $result = @json_decode($result, true);
+      $decode_result = @json_decode($result, true);
        
       //check if we're able to json_decode the result correctly
-      if( $result == false ) {
-         throw new Exception('Request was not correct: '.$result['errmsg']);
+      if( $decode_result == false ) {
+         throw new Exception('Request was not correct: ' . $result);
       }
        
       //if there was an error in the request, throw an exception
-      if( $result['success'] == false ) {
-         throw new Exception($result['errormsg']);
+      if( $decode_result['success'] == false ) {
+         throw new Exception($decode_result['errormsg']);
       }
        
       //if everything went great, return the data
-      return $result['data'];
+      return $decode_result['data'];
    }
 }
 
