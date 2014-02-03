@@ -206,7 +206,7 @@ function showVlanDetails ($vlanNumber){
 	$req['controller']	= "Vlans";
 	$req['action']		= "read";
 	$req['format']		= "ip";
-	$req['vlanNumber']	= $vlanNumber;
+	$req['number']		= $vlanNumber;
 
 	DbgPrn( $req, "Request:\n");
 
@@ -214,10 +214,12 @@ function showVlanDetails ($vlanNumber){
 	$apicaller = new ApiCaller($app['id'], $app['enc'], $url);
 
 	// Get Details:
-	$details = $apicaller->sendRequest($req);
+	$all_details = $apicaller->sendRequest($req);
 
-	include ('templates/vlan.php');
-	print_r ($vlan_info_template);
+	foreach ($all_details as $details) {
+		include ('templates/vlan.php');
+		echo $vlan_info_template;
+	}
 }
 // }}}
 
