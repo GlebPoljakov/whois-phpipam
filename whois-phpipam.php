@@ -92,10 +92,12 @@ try {
 }
 catch ( Exception $e ) {
 	//catch any exceptions and report the problem
-/*	print "Error: ".$e->getMessage();
-	print "In file: ".$e->getFile();
-	print ""*/
-	print_r($e);
+	print "\nError: ".$e->getMessage()."\n";
+
+	if ($debug_level) {
+		print "In file: ".$e->getFile();
+		print_r($e);
+	}
 }
 
 // {{{ Function to get ip details and print it to STDOUT
