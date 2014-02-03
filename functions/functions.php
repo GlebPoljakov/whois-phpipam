@@ -1,8 +1,8 @@
 <?php
 
 // {{{ Include standalones:
-	require_once('getopts.php');
-	require_once 'PEAR/Console/Table.php';
+	require_once ('getopts.php');
+	require_once ('PEAR/Console/Table.php');
 // }}}
 
 
@@ -13,9 +13,13 @@
 //
 function DbgPrn ($msg, $caption='') {
 
-    print $caption;
-    print_r($msg);
+    global $debug_level;
 
+    //if there is no need to print debug messages
+    if ( !$debug_level ) return ;
+
+    echo $caption;
+    print_r($msg);
 }
 // }}}
 

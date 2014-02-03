@@ -5,17 +5,16 @@
  * 
  */
 
-# functions
-include_once('functions/functions.php');
+// functions
+include_once ('functions/functions.php');
 
-# config
-include_once('apiConfig.php');
+// config
+include_once ('apiConfig.php');
 
-# API caller class
-include_once('apiClient.php');
+// API caller class
+include_once ('apiClient.php');
 
-
-# wrap in try to catch exceptions
+// wrap in try to catch exceptions
 try {
 
 	// {{{ Get params
