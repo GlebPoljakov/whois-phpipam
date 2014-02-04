@@ -127,8 +127,9 @@ function showIpDetails ($ip){
 	}
 	catch (Exception $e) {
 		$error_msg = $e->getMessage();
+
 		if ($error_msg == 'Address not existed') {
-				print "Address $ip not existed in db.\n";
+				echo "\nAddress $ip not existing in db.\n\n";
 				// try to find subnet
 				showSubnetDetails ($ip.'/32');
 		}
@@ -150,7 +151,8 @@ function showSubnetDetails ($subnet){
 	$req['controller']	= "Subnets";
 	$req['action']		= "read";
 	$req['format']		= "ip";
-	$req['subnet']		= $subnet;
+	$req['cidr']		= $subnet;
+	$req['longerprefix']	= true;
 
 	DbgPrn( $req, "Request:\n");
 
