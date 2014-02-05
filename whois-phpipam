@@ -19,15 +19,7 @@ try {
 
 	// {{{ Get params
 	//
-	// Params:
-	//	-h/--help
-	//	-q %query%
-	//		%ipv4/ipv6%	- Get ip details
-	//		%CIDR-subnet%	- Get subnet details
-	//		%RD:RD%		- Get vrfId details
-	//TODO:		AS%%		- Get ASN details
-	//		VLAN%vlanId%	- Get vlanId details
-	//TODO:		MAC-addr	- Get details by MAC
+	// For cmd-options see usage().
 	//
 	$opts = getopts(array(
 		'help' => array(
@@ -38,14 +30,25 @@ try {
 				'switch' => array('q','query'),
 				'type' => GETOPT_VAL
 				),
+		'stdin' => array(
+				'switch' => array('i','stdin'),
+				'type' => GETOPT_SWITCH
+				),
 	),$argv);
 
 	DbgPrn( $opts, "Opts:\n");
 
+	//if we must read query from stdin:
+	if ( $opts['stdin'] )
+	{
+		$opts['query'] = trim(fgets(STDIN));
+	}
+
+	//check for '--help' or empty %query%
 	if (
 		$opts['help'] ||
-		$opts['query']=='')
-	{
+		$opts['query']==''
+	) {
 		usage ();
 		exit (0);
 	}
