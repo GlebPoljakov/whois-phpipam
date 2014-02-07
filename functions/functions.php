@@ -13,10 +13,10 @@
 //
 function DbgPrn ($msg, $caption='') {
 
-    global $debug_level;
+    global $DEBUG_LEVEL;
 
     //if there is no need to print debug messages
-    if ( !$debug_level ) return ;
+    if ( !$DEBUG_LEVEL ) return ;
 
     echo $caption;
     print_r($msg);
@@ -30,14 +30,18 @@ function usage (){
 
 global $argv;
 
-print "Usage: $argv[0] [-h|--help] [-q|--query {%query%}]\n";
+print "Usage: $argv[0] [-h|--help] [-i|--stdin] [-q|--query {%query%}]\n";
 ?>
+There:
+[-h|--help]	- show this message. 
+[-i|--stdin]	- read %query% from stdin.
+[-q|--query]	- query phpipam with %query%
 
 There %query% is:
-    %ipv4/ipv6%	- Get ip details
+    %ipv4/ipv6%		- Get ip details
     %CIDR-subnet%	- Get subnet details
     %RD:RD%		- Get vrfId details
-    VLAN%vlanId%	- Get vlanId details
+    %vlanId%		- Get vlanId details
 
 <?
 }
