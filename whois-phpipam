@@ -36,7 +36,7 @@ try {
 				),
 	),$argv);
 
-	DbgPrn( $opts, "Opts:\n");
+	DbgPrn( $opts, 'Opts:'.PHP_EOL);
 
 	//if we must read query from stdin:
 	if ( $opts['stdin'] )
@@ -95,7 +95,7 @@ try {
 }
 catch ( Exception $e ) {
 	//catch any exceptions and report the problem
-	print "\nError: ".$e->getMessage()."\n";
+	print PHP_EOL . 'Error: '.$e->getMessage() . PHP_EOL;
 
 	if ($debug_level) {
 		print "In file: ".$e->getFile();
@@ -116,7 +116,7 @@ function showIpDetails ($ip){
 	$req['format']		= 'ip';
 	$req['ip']		= $ip;
 
-	DbgPrn( $req, "Request:\n");
+	DbgPrn( $req, 'Request:' . PHP_EOL);
 
 	// initialize API caller
 	$apicaller = new ApiCaller($app['id'], $app['enc'], $url);
@@ -132,7 +132,7 @@ function showIpDetails ($ip){
 		$error_msg = $e->getMessage();
 
 		if ($error_msg == 'Address not existed') {
-				echo "\nAddress $ip not existing in db.\n\n";
+				echo PHP_EOL . "Address $ip not existing in db." . PHP_EOL . PHP_EOL;
 				// try to find subnet
 				showSubnetDetails ($ip.'/32');
 		}
@@ -157,7 +157,7 @@ function showSubnetDetails ($subnet){
 	$req['cidr']		= $subnet;
 	$req['longerprefix']	= true;
 
-	DbgPrn( $req, "Request:\n");
+	DbgPrn( $req, 'Request:' . PHP_EOL);
 
 	// initialize API caller
 	$apicaller = new ApiCaller($app['id'], $app['enc'], $url);
@@ -214,7 +214,7 @@ function showVlanDetails ($vlanNumber){
 	$req['format']		= "ip";
 	$req['number']		= $vlanNumber;
 
-	DbgPrn( $req, "Request:\n");
+	DbgPrn( $req, 'Request:' . PHP_EOL);
 
 	// initialize API caller
 	$apicaller = new ApiCaller($app['id'], $app['enc'], $url);

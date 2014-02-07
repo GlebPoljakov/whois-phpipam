@@ -30,7 +30,7 @@ function usage (){
 
 global $argv;
 
-print "Usage: $argv[0] [-h|--help] [-i|--stdin] [-q|--query {%query%}]\n";
+print "Usage: $argv[0] [-h|--help] [-i|--stdin] [-q|--query {%query%}]" . PHP_EOL;
 ?>
 There:
 [-h|--help]	- show this message. 
